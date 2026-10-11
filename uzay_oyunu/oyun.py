@@ -3,13 +3,11 @@
 
 import json
 from pathlib import Path
+from uzay_oyunu.araclar import hamle_sayaci
 
 
 def envanter_metni(credits: bool, engines: bool, copilot: bool) -> str:
-    """Mevcut envanter durumuna göre eşyaların listelendiği metni döndürür.
-    
-    Hiçbir eşya yoksa boş dize döndürür.
-    """
+    """Mevcut envanter durumuna göre eşyaların listelendiği metni döndürür."""
     esyalar: list[str] = []
     if credits:
         esyalar.append("bol kredi")
@@ -37,13 +35,11 @@ def galaksi_kur(
     baslangic: str,
     **kwargs,
 ) -> dict:
-    """Galaksi haritasını ve başlangıç durumunu kurar.
-    
-    Başlangıç gezegeni listede yoksa ValueError fırlatır.
-    Yakit belirtilmezse varsayılan 50 olarak atanır.
-    """
+    """Galaksi haritasını ve başlangıç durumunu kurar."""
     if baslangic not in gezegenler:
-        raise ValueError(f"Başlangıç gezegeni '{baslangic}' gezegenler listesinde bulunamadı!")
+        raise ValueError(
+            f"Başlangıç gezegeni '{baslangic}' gezegenler listesinde bulunamadı!"
+        )
 
     yakit = kwargs.get("yakit", 50)
 
@@ -55,14 +51,24 @@ def galaksi_kur(
     }
 
 
+def yakit_ekle(miktar: int, depo: list[int] | None = None) -> list[int]:
+    """Depoya yakıt miktarı ekler."""
+    if depo is None:
+        depo = []
+    depo.append(miktar)
+    return depo
+
+
 def travel():
     """Oyuncunun galakside seyahat etmesini ve görevleri tamamlamasını sağlar."""
-    # JSON dosyasını okuyup galaksiyi kurma
     json_yolu = Path(__file__).parent / "galaksi.json"
     with open(json_yolu, "r", encoding="utf-8") as f:
         veri = json.load(f)
 
     galaksi = galaksi_kur(**veri)
+
+    # Görev 5: Sayaç closure'ını başlatıyoruz
+    sayac = hamle_sayaci()
 
     credits = False
     engines = False
@@ -74,20 +80,12 @@ def travel():
     if metin:
         print(metin)
 
-    # Hedefleri doğrudan galaksi sözlüğünden alma
     destinations = galaksi["baglantilar"].get(konum, [])
     print(hedef_menusu(destinations))
 
-
-def yakit_ekle(miktar: int, depo: list[int] | None = None) -> list[int]:
-    """Depoya yakıt miktarı ekler.
-    
-    Varsayılan liste tuzağını önlemek için None kalıbı kullanılır.
-    """
-    if depo is None:
-        depo = []
-    depo.append(miktar)
-    return depo
+    # Örnek bir hamle simülasyonu
+    hamle = sayac()
+    print(f"Oyunu {hamle} hamlede bitirdin!")
 
 
 if __name__ == "__main__":
