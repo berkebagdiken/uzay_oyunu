@@ -1,6 +1,10 @@
 # Ad Soyad: Berke Bağdiken
 # Hafta 3 - Uzay Oyunu
 
+import json
+from pathlib import Path
+
+
 def envanter_metni(credits: bool, engines: bool, copilot: bool) -> str:
     """Mevcut envanter durumuna göre eşyaların listelendiği metni döndürür.
     
@@ -27,27 +31,51 @@ def hedef_menusu(hedefler: list[str]) -> str:
     return "\n".join(satirlar)
 
 
+def galaksi_kur(
+    gezegenler: list[str],
+    baglantilar: dict[str, list[str]],
+    baslangic: str,
+    **kwargs,
+) -> dict:
+    """Galaksi haritasını ve başlangıç durumunu kurar.
+    
+    Başlangıç gezegeni listede yoksa ValueError fırlatır.
+    Yakit belirtilmezse varsayılan 50 olarak atanır.
+    """
+    if baslangic not in gezegenler:
+        raise ValueError(f"Başlangıç gezegeni '{baslangic}' gezegenler listesinde bulunamadı!")
+
+    yakit = kwargs.get("yakit", 50)
+
+    return {
+        "gezegenler": gezegenler,
+        "baglantilar": baglantilar,
+        "konum": baslangic,
+        "yakit": yakit,
+    }
+
+
 def travel():
     """Oyuncunun galakside seyahat etmesini ve görevleri tamamlamasını sağlar."""
+    # JSON dosyasını okuyup galaksiyi kurma
+    json_yolu = Path(__file__).parent / "galaksi.json"
+    with open(json_yolu, "r", encoding="utf-8") as f:
+        veri = json.load(f)
+
+    galaksi = galaksi_kur(**veri)
+
     credits = False
     engines = False
     copilot = False
-    konum = "dünya"
-
-    destinations_map = {
-        "dünya": ["centauri", "sirius"],
-        "centauri": ["dünya", "orion"],
-        "sirius": ["dünya", "orion", "kara_delik"],
-        "orion": ["centauri", "sirius"],
-        "kara_delik": ["sirius"]
-    }
+    konum = galaksi["konum"]
 
     print("Uzay macerası başlıyor!")
     metin = envanter_metni(credits, engines, copilot)
     if metin:
         print(metin)
 
-    destinations = destinations_map.get(konum, [])
+    # Hedefleri doğrudan galaksi sözlüğünden alma
+    destinations = galaksi["baglantilar"].get(konum, [])
     print(hedef_menusu(destinations))
 
 
