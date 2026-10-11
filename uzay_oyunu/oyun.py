@@ -79,5 +79,16 @@ def travel():
     print(hedef_menusu(destinations))
 
 
+def yakit_ekle(miktar: int, depo: list[int] | None = None) -> list[int]:
+    """Depoya yakıt miktarı ekler.
+    
+    Varsayılan liste tuzağını önlemek için None kalıbı kullanılır.
+    """
+    if depo is None:
+        depo = []
+    depo.append(miktar)
+    return depo
+
+
 if __name__ == "__main__":
     travel()
