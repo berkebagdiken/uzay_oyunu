@@ -71,3 +71,44 @@ def test_rota_sayaci():
     assert say("dünya", 3) == 9
     assert say("dünya", 10) == 2185
     assert say("dünya", 40) == 16832258606399
+
+from uzay_oyunu.istatistik import (
+    baglantisi_cok_filter,
+    baglantisi_cok_liste_ureteci,
+    buyuk_harfli_liste_ureteci,
+    buyuk_harfli_map,
+    hizli_yolculuk,
+    toplam_baglanti_reduce,
+    toplam_baglanti_sum,
+)
+
+
+def test_istatistik_fonksiyonlari():
+    galaksi = {
+        "gezegenler": ["dünya", "centauri", "sirius", "orion", "kara_delik"],
+        "baglantilar": {
+            "dünya": ["centauri", "sirius"],
+            "centauri": ["dünya", "orion"],
+            "sirius": ["dünya", "orion", "kara_delik"],
+            "orion": ["centauri", "sirius"],
+            "kara_delik": ["sirius"],
+        },
+    }
+
+    # 1. Gezegen adlarının büyük harfli listesi
+    beklenen_buyuk = ["DÜNYA", "CENTAURI", "SIRIUS", "ORION", "KARA_DELIK"]
+    assert buyuk_harfli_map(galaksi["gezegenler"]) == beklenen_buyuk
+    assert buyuk_harfli_liste_ureteci(galaksi["gezegenler"]) == beklenen_buyuk
+
+    # 2. En az iki bağlantısı olan gezegenler
+    beklenen_cok = ["dünya", "centauri", "sirius", "orion"]
+    assert baglantisi_cok_filter(galaksi) == beklenen_cok
+    assert baglantisi_cok_liste_ureteci(galaksi) == beklenen_cok
+
+    # 3. Toplam bağlantı sayısı (2 + 2 + 3 + 2 + 1 = 10)
+    assert toplam_baglanti_reduce(galaksi) == 10
+    assert toplam_baglanti_sum(galaksi) == 10
+
+    # 4. partial ile türetilen hizli_yolculuk testi
+    sonuc = hizli_yolculuk("dünya", "sirius")
+    assert sonuc == "dünya -> sirius yolculuğu hız=3 ile tamamlandı."
