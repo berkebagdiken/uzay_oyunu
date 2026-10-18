@@ -3,7 +3,7 @@
 
 import itertools
 import pytest
-from uzay_oyunu.akis import fibonacci, yakit_gostergesi
+from uzay_oyunu.akis import fibonacci, yakit_gostergesi, satirlari_oku, ayristir, uzun_yolculuklar
 
 
 def test_fibonacci_yollari_ve_tek_kullanimlik():
@@ -36,3 +36,25 @@ def test_yakit_gostergesi_ve_stopiteration():
     assert next(g) == 0
     with pytest.raises(StopIteration):
         next(g)
+def test_seyir_boru_hatti(tmp_path):
+    # Test ortamı için geçici dosya oluşturma
+    test_dosyasi = tmp_path / "seyir.txt"
+    test_dosyasi.write_text(
+        "dünya -> sirius 12\n"
+        "sirius -> orion 8\n"
+        "orion -> centauri 15\n"
+        "#bakım molası\n"
+        "centauri -> orion 15\n"
+        "orion > sirius 8\n"
+        "sirius -> kara_delik 30\n",
+        encoding="utf-8",
+    )
+
+    # 1. Aşama doğrulaması: Toplam yakıt 88 olmalı
+    toplam_yakit = sum(y for _, _, y in ayristir(satirlari_oku(test_dosyasi)))
+    assert toplam_yakit == 88
+
+    # 2. Aşama doğrulaması: Yakıtı 10'dan büyük hedefler
+    kayitlar = ayristir(satirlari_oku(test_dosyasi))
+    uzun_hedefler = [h for _, h, _ in uzun_yolculuklar(kayitlar, 10)]
+    assert uzun_hedefler == ["sirius", "centauri", "orion", "kara_delik"]
