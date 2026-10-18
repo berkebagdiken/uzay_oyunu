@@ -53,3 +53,18 @@ def uzun_yolculuklar(
     for kayit in kayitlar:
         if kayit[2] > esik:
             yield kayit
+
+def rota_sayaci(baglantilar: dict[str, list[str]]) -> Callable[[str, int], int]:
+    """Verilen gezegenden başlayıp tam adim kadar süren farklı rotaların sayısını
+
+    @lru_cache ile önbellekleyerek hesaplayan fonksiyon döndürür.
+    """
+
+    @functools.lru_cache(maxsize=None)
+    def rota_sayisi(gezegen: str, adim: int) -> int:
+        if adim == 0:
+            return 1
+        komsular = baglantilar.get(gezegen, [])
+        return sum(rota_sayisi(komsu, adim - 1) for komsu in komsular)
+
+    return rota_sayisi

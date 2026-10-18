@@ -3,7 +3,7 @@
 
 import itertools
 import pytest
-from uzay_oyunu.akis import fibonacci, yakit_gostergesi, satirlari_oku, ayristir, uzun_yolculuklar
+from uzay_oyunu.akis import fibonacci, yakit_gostergesi, satirlari_oku, ayristir, uzun_yolculuklar, rota_sayaci
 
 
 def test_fibonacci_yollari_ve_tek_kullanimlik():
@@ -58,3 +58,16 @@ def test_seyir_boru_hatti(tmp_path):
     kayitlar = ayristir(satirlari_oku(test_dosyasi))
     uzun_hedefler = [h for _, h, _ in uzun_yolculuklar(kayitlar, 10)]
     assert uzun_hedefler == ["sirius", "centauri", "orion", "kara_delik"]
+
+def test_rota_sayaci():
+    baglantilar = {
+        "dünya": ["centauri", "sirius"],
+        "centauri": ["dünya", "orion"],
+        "sirius": ["dünya", "orion", "kara_delik"],
+        "orion": ["centauri", "sirius"],
+        "kara_delik": ["sirius"],
+    }
+    say = rota_sayaci(baglantilar)
+    assert say("dünya", 3) == 9
+    assert say("dünya", 10) == 2185
+    assert say("dünya", 40) == 16832258606399
