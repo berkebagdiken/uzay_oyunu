@@ -14,3 +14,13 @@ def fibonacci() -> Generator[int, None, None]:
     while True:
         yield a
         a, b = b, a + b
+
+def yakit_gostergesi(yakit: int, tuketim: int) -> Generator[int, None, None]:
+    """Her çağrıda yakıtı tüketim miktarı kadar azaltıp kalanı üreten üreteç.
+    
+    Yakıt 0'a ulaştığında durur.
+    """
+    kalan = yakit
+    while kalan > 0:
+        kalan = max(0, kalan - tuketim)
+        yield kalan     

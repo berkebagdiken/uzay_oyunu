@@ -3,7 +3,7 @@
 
 import itertools
 import pytest
-from uzay_oyunu.akis import fibonacci
+from uzay_oyunu.akis import fibonacci, yakit_gostergesi
 
 
 def test_fibonacci_yollari_ve_tek_kullanimlik():
@@ -26,3 +26,13 @@ def test_fibonacci_yollari_ve_tek_kullanimlik():
     assert parca1 != parca2
     assert parca1 == [0, 1, 1]
     assert parca2 == [2, 3, 5]
+
+def test_yakit_gostergesi_ve_stopiteration():
+    # PDF'teki örnek: list(yakit_gostergesi(100, 30)) -> [70, 40, 10, 0]
+    assert list(yakit_gostergesi(100, 30)) == [70, 40, 10, 0]
+
+    # StopIteration davranışı testi
+    g = yakit_gostergesi(10, 10)
+    assert next(g) == 0
+    with pytest.raises(StopIteration):
+        next(g)

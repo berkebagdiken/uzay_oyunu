@@ -4,6 +4,7 @@
 import json
 from pathlib import Path
 from uzay_oyunu.araclar import hamle_sayaci
+from uzay_oyunu.akis import yakit_gostergesi
 
 
 def envanter_metni(credits: bool, engines: bool, copilot: bool) -> str:
@@ -66,9 +67,10 @@ def travel():
         veri = json.load(f)
 
     galaksi = galaksi_kur(**veri)
-
-    # Görev 5: Sayaç closure'ını başlatıyoruz
     sayac = hamle_sayaci()
+
+    # Görev 2: Başlangıç yakıtı ve adım başı 5 birim tüketim
+    gosterge = yakit_gostergesi(galaksi["yakit"], 5)
 
     credits = False
     engines = False
@@ -83,9 +85,14 @@ def travel():
     destinations = galaksi["baglantilar"].get(konum, [])
     print(hedef_menusu(destinations))
 
-    # Örnek bir hamle simülasyonu
-    hamle = sayac()
-    print(f"Oyunu {hamle} hamlede bitirdin!")
+    # Seyahat adımı simülasyonu ve yakıt kontrolü
+    try:
+        kalan = next(gosterge)
+        hamle = sayac()
+        print(f"Kalan yakıt: {kalan}")
+        print(f"Oyunu {hamle} hamlede bitirdin!")
+    except StopIteration:
+        print("Yakıtın bitti, uzayda sürükleniyorsun...")
 
 
 if __name__ == "__main__":
