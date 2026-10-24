@@ -72,3 +72,48 @@ def test_log_cagri(capsys):
     cikti = capsys.readouterr().out
     assert "-> yolculuk('orion', hiz=3)" in cikti
     assert "<<- yolculuk 'orion hiz=3'" in cikti
+
+import pytest
+from uzay_oyunu.komutlar import KOMUTLAR, envanter, harita, komut, yardim
+
+
+def test_komut_kayit_ve_hata():
+    # Aynı komutun ikinci kez kaydedilmeye çalışılması tanım anında ValueError fırlatmalı
+    with pytest.raises(ValueError, match="zaten kayıtlı"):
+        @komut("yardim", "tekrarlanan komut")
+        def yardim_kopya(durum):
+            return ""
+
+    # Dekoratörün fonksiyonu değiştirmeden döndürdüğünü doğrulama
+    @komut("test_komutu", "test açıklaması")
+    def ornek_komut(durum):
+        return "çalıştı"
+
+    assert ornek_komut({}) == "çalıştı"
+    assert "test_komutu" in KOMUTLAR
+
+
+def test_komutlar_yardim_harita_envanter():
+    durum = {
+        "konum": "dünya",
+        "baglantilar": {
+            "dünya": ["centauri", "sirius"],
+            "centauri": ["dünya", "orion"],
+            "sirius": ["dünya", "kara_delik"],
+        },
+        "credits": True,
+        "engines": False,
+        "copilot": True,
+    }
+
+    # 1. harita komutu testi
+    assert harita(durum) == "centauri, sirius"
+
+    # 2. envanter komutu testi
+    assert envanter(durum) == "Sende: bol kredi, yetenekli bir pilot"
+
+    # 3. yardim komutu testi
+    yardim_metni = yardim(durum)
+    assert "yardim komutları listeler" in yardim_metni
+    assert "harita gidebileceğin gezegenleri gösterir" in yardim_metni
+    assert "envanter eşyalarını gösterir" in yardim_metni

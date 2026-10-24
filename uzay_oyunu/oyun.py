@@ -6,7 +6,7 @@ from pathlib import Path
 from uzay_oyunu.araclar import hamle_sayaci
 from uzay_oyunu.akis import yakit_gostergesi
 from uzay_oyunu.dekoratorler import log_cagri
-
+from uzay_oyunu.komutlar import KOMUTLAR
 
 def envanter_metni(credits: bool, engines: bool, copilot: bool) -> str:
     """Mevcut envanter durumuna göre eşyaların listelendiği metni döndürür."""
@@ -97,4 +97,103 @@ def travel():
 
 
 if __name__ == "__main__":
-    travel()
+ def travel(girdiler: list[str] | None = None):
+    """Oyuncunun galakside seyahat etmesini ve komutları çalıştırmasını sağlar."""
+    json_yolu = Path(__file__).parent / "galaksi.json"
+    with open(json_yolu, "r", encoding="utf-8") as f:
+        veri = json.load(f)
+
+    galaksi = galaksi_kur(**veri)
+    sayac = hamle_sayaci()
+    gosterge = yakit_gostergesi(galaksi["yakit"], 5)
+
+    credits = False
+    engines = False
+    copilot = False
+    konum = galaksi["konum"]
+
+    durum = {
+        "konum": konum,
+        "baglantilar": galaksi["baglantilar"],
+        "credits": credits,
+        "engines": engines,
+        "copilot": copilot,
+    }
+
+    print("Uzay macerası başlıyor!")
+    metin = envanter_metni(credits, engines, copilot)
+    if metin:
+        print(metin)
+
+    destinations = galaksi["baglantilar"].get(konum, [])
+    print(hedef_menusu(destinations))
+
+    # Girdi komut ise komutu çalıştırıp menüyü tekrar gösterir, değilse seyahat eder
+    if girdiler:
+        for girdi in girdiler:
+            girdi = girdi.strip()
+            if girdi in KOMUTLAR:
+                fonk, _ = KOMUTLAR[girdi]
+                print(fonk(durum))
+                print(hedef_menusu(destinations))
+            else:
+                break
+
+    try:
+        kalan = next(gosterge)
+        hamle = sayac()
+        print(f"Kalan yakıt: {kalan}")
+        print(f"Oyunu {hamle} hamlede bitirdin!")
+    except StopIteration:
+        print("Yakıtın bitti, uzayda sürükleniyorsun...")   
+
+def travel(girdiler: list[str] | None = None):
+    """Oyuncunun galakside seyahat etmesini ve komutları çalıştırmasını sağlar."""
+    json_yolu = Path(__file__).parent / "galaksi.json"
+    with open(json_yolu, "r", encoding="utf-8") as f:
+        veri = json.load(f)
+
+    galaksi = galaksi_kur(**veri)
+    sayac = hamle_sayaci()
+    gosterge = yakit_gostergesi(galaksi["yakit"], 5)
+
+    credits = False
+    engines = False
+    copilot = False
+    konum = galaksi["konum"]
+
+    durum = {
+        "konum": konum,
+        "baglantilar": galaksi["baglantilar"],
+        "credits": credits,
+        "engines": engines,
+        "copilot": copilot,
+    }
+
+    print("Uzay macerası başlıyor!")
+    metin = envanter_metni(credits, engines, copilot)
+    if metin:
+        print(metin)
+
+    destinations = galaksi["baglantilar"].get(konum, [])
+    print(hedef_menusu(destinations))
+
+    # Girdi komut ise komutu çalıştırıp menüyü tekrar gösterir, değilse seyahat eder
+    if girdiler:
+        for girdi in girdiler:
+            girdi = girdi.strip()
+            if girdi in KOMUTLAR:
+                fonk, _ = KOMUTLAR[girdi]
+                print(fonk(durum))
+                print(hedef_menusu(destinations))
+            else:
+                break
+
+    try:
+        kalan = next(gosterge)
+        hamle = sayac()
+        print(f"Kalan yakıt: {kalan}")
+        print(f"Oyunu {hamle} hamlede bitirdin!")
+    except StopIteration:
+        print("Yakıtın bitti, uzayda sürükleniyorsun...")
+        travel()
