@@ -2,7 +2,7 @@
 # Hafta 5 Testleri: Dekoratörler
 
 import functools
-from uzay_oyunu.dekoratorler import say, sure_olc 
+from uzay_oyunu.dekoratorler import say, sure_olc , log_cagri
 
 
 def test_sure_olc(capsys):
@@ -60,3 +60,15 @@ def test_say_ve_dekorator_sirasi():
 
     assert fib3(20) == 6765
     assert fib3.__wrapped__.cagri == 21
+
+def test_log_cagri(capsys):
+    @log_cagri
+    def yolculuk(hedef: str, hiz: int = 1) -> str:
+        return f"{hedef} hiz={hiz}"
+
+    sonuc = yolculuk("orion", hiz=3)
+    assert sonuc == "orion hiz=3"
+
+    cikti = capsys.readouterr().out
+    assert "-> yolculuk('orion', hiz=3)" in cikti
+    assert "<<- yolculuk 'orion hiz=3'" in cikti

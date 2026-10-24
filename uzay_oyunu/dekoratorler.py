@@ -30,3 +30,22 @@ def say(fonksiyon: Callable) -> Callable:
 
     sarmalayici.cagri = 0
     return sarmalayici
+
+def log_cagri(fonksiyon: Callable) -> Callable:
+    """Her çağrıdan önce fonksiyon adını ve argümanlarını,
+
+    çağrıdan sonra ise dönüş değerini ekrana yazdıran dekoratör.
+    """
+
+    @functools.wraps(fonksiyon)
+    def sarmalayici(*args: Any, **kwargs: Any) -> Any:
+        arg_listesi = [repr(a) for a in args] + [
+            f"{k}={v!r}" for k, v in kwargs.items()
+        ]
+        arg_metni = ", ".join(arg_listesi)
+        print(f"-> {fonksiyon.__name__}({arg_metni})")
+        sonuc = fonksiyon(*args, **kwargs)
+        print(f"<<- {fonksiyon.__name__} {sonuc!r}")
+        return sonuc
+
+    return sarmalayici
