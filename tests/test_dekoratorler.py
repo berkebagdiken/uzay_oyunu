@@ -1,7 +1,8 @@
 # Ad Soyad: Berke Bağdiken
 # Hafta 5 Testleri: Dekoratörler
 
-from uzay_oyunu.dekoratorler import sure_olc
+import functools
+from uzay_oyunu.dekoratorler import say, sure_olc 
 
 
 def test_sure_olc(capsys):
@@ -26,3 +27,36 @@ def test_sure_olc(capsys):
     yakalanan = capsys.readouterr().out
     assert "ornek_fonksiyon:" in yakalanan
     assert "sn" in yakalanan
+
+def test_say_ve_dekorator_sirasi():
+    # 1. Durum: Yalnızca @say
+    @say
+    def fib1(n: int) -> int:
+        if n < 2:
+            return n
+        return fib1(n - 1) + fib1(n - 2)
+
+    assert fib1(20) == 6765
+    assert fib1.cagri == 21891
+
+    # 2. Durum: @say üstte, @lru_cache altta
+    @say
+    @functools.lru_cache(maxsize=None)
+    def fib2(n: int) -> int:
+        if n < 2:
+            return n
+        return fib2(n - 1) + fib2(n - 2)
+
+    assert fib2(20) == 6765
+    assert fib2.cagri == 39
+
+    # 3. Durum: @lru_cache üstte, @say altta
+    @functools.lru_cache(maxsize=None)
+    @say
+    def fib3(n: int) -> int:
+        if n < 2:
+            return n
+        return fib3(n - 1) + fib3(n - 2)
+
+    assert fib3(20) == 6765
+    assert fib3.__wrapped__.cagri == 21
