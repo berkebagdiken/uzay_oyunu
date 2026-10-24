@@ -74,3 +74,33 @@ def yakit_harca(miktar: int) -> int:
     """Verilen miktar kadar yakıt harcar ve kalan yakıtı döndürür."""
     varsayilan_depo = 100
     return varsayilan_depo - miktar
+
+def hafiza(maxsize: int | None = None) -> Callable:
+    """functools.lru_cache kullanmadan sözlükle çalışan önbellek dekoratörü (Bonus +10).
+
+    maxsize sınırına ulaşıldığında en eski girdiyi siler (LRU).
+    """
+
+    def dekorator(fonksiyon: Callable) -> Callable:
+        onbellek: dict[tuple, Any] = {}
+
+        @functools.wraps(fonksiyon)
+        def sarmalayici(*args: Any, **kwargs: Any) -> Any:
+            anahtar = (args, tuple(sorted(kwargs.items())))
+            if anahtar in onbellek:
+                deger = onbellek.pop(anahtar)
+                onbellek[anahtar] = deger
+                return deger
+
+            sonuc = fonksiyon(*args, **kwargs)
+            if maxsize is not None and len(onbellek) >= maxsize:
+                en_eski = next(iter(onbellek))
+                del onbellek[en_eski]
+
+            onbellek[anahtar] = sonuc
+            return sonuc
+
+        sarmalayici.onbellek = onbellek
+        return sarmalayici
+
+    return dekorator

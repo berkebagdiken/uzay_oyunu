@@ -4,6 +4,7 @@
 import functools
 from uzay_oyunu.dekoratorler import say, sure_olc , log_cagri
 from uzay_oyunu.dekoratorler import sinirla, yakit_harca
+from uzay_oyunu.dekoratorler import hafiza
 
 def test_sure_olc(capsys):
     @sure_olc
@@ -136,3 +137,35 @@ def test_sinirla_dekoratoru():
         ValueError, match="yakit_harca: -5 değeri 0-100 aralığında değil"
     ):
         yakit_harca(-5)
+
+def test_hafiza_bonusu_ve_lru_karsilastirma():
+    # 1. lru_cache ile aynı sonuçları verdiğinin doğrulanması
+    @hafiza()
+    def fib_hafiza(n: int) -> int:
+        if n < 2:
+            return n
+        return fib_hafiza(n - 1) + fib_hafiza(n - 2)
+
+    @functools.lru_cache(maxsize=None)
+    def fib_lru(n: int) -> int:
+        if n < 2:
+            return n
+        return fib_lru(n - 1) + fib_lru(n - 2)
+
+    for i in range(15):
+        assert fib_hafiza(i) == fib_lru(i)
+
+    # 2. maxsize dolduğunda en eski girdinin silinmesinin testi
+    @hafiza(maxsize=2)
+    def carp(x: int) -> int:
+        return x * 10
+
+    carp(1)
+    carp(2)
+    assert len(carp.onbellek) == 2
+
+    carp(3)  # Kapasite doldu, en eski girdi olan (1) silinmeli
+    assert len(carp.onbellek) == 2
+    onbellek_argumanlari = [k[0][0] for k in carp.onbellek.keys()]
+    assert 1 not in onbellek_argumanlari
+    assert onbellek_argumanlari == [2, 3]
