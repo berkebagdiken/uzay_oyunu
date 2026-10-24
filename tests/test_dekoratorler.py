@@ -3,7 +3,7 @@
 
 import functools
 from uzay_oyunu.dekoratorler import say, sure_olc , log_cagri
-
+from uzay_oyunu.dekoratorler import sinirla, yakit_harca
 
 def test_sure_olc(capsys):
     @sure_olc
@@ -117,3 +117,22 @@ def test_komutlar_yardim_harita_envanter():
     assert "yardim komutları listeler" in yardim_metni
     assert "harita gidebileceğin gezegenleri gösterir" in yardim_metni
     assert "envanter eşyalarını gösterir" in yardim_metni
+
+def test_sinirla_dekoratoru():
+    # 1. Aralık içi normal çağrı
+    assert yakit_harca(30) == 70
+
+    # 2. Sınır değerleri (0 ve 100)
+    assert yakit_harca(0) == 100
+    assert yakit_harca(100) == 0
+
+    # 3. Aralık dışı değerler ve hata mesajı kontrolü
+    with pytest.raises(
+        ValueError, match="yakit_harca: 150 değeri 0-100 aralığında değil"
+    ):
+        yakit_harca(150)
+
+    with pytest.raises(
+        ValueError, match="yakit_harca: -5 değeri 0-100 aralığında değil"
+    ):
+        yakit_harca(-5)

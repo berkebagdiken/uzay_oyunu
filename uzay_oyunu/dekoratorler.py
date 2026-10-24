@@ -49,3 +49,28 @@ def log_cagri(fonksiyon: Callable) -> Callable:
         return sonuc
 
     return sarmalayici
+
+def sinirla(alt: int | float, ust: int | float) -> Callable:
+    """Dekore edilen fonksiyonun ilk argümanının [alt, ust] aralığında olduğunu denetleyen dekoratör."""
+
+    def dekorator(fonksiyon: Callable) -> Callable:
+        @functools.wraps(fonksiyon)
+        def sarmalayici(*args: Any, **kwargs: Any) -> Any:
+            if args:
+                deger = args[0]
+                if not (alt <= deger <= ust):
+                    raise ValueError(
+                        f"{fonksiyon.__name__}: {deger} değeri {alt}-{ust} aralığında değil"
+                    )
+            return fonksiyon(*args, **kwargs)
+
+        return sarmalayici
+
+    return dekorator
+
+
+@sinirla(0, 100)
+def yakit_harca(miktar: int) -> int:
+    """Verilen miktar kadar yakıt harcar ve kalan yakıtı döndürür."""
+    varsayilan_depo = 100
+    return varsayilan_depo - miktar
